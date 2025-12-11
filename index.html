@@ -80,7 +80,7 @@
   .control-note {
     font-size: 11px;
     color: var(--muted);
-    max-width: 260px;
+    max-width: 520px;
     line-height: 1.4;
   }
   .radio-row {
@@ -161,8 +161,8 @@
   <div class="card">
     <h1>建築コスト＆建造時間シミュレーター</h1>
     <div class="subtitle">
-      各建物の「現在FC-段階」と「目標FC-段階」を入れると、<br />
-      必要な精錬火晶・火晶と、加速後の建造時間合計を計算します。
+      各建物の「現在FC-段階」と「目標FC-段階」を入れると、<br>
+      必要な精錬火晶・火晶と、加速後の建造時間合計を計算します。<br>
     </div>
 
     <h2>① 建物ごとのレベル</h2>
@@ -284,14 +284,14 @@
     </table>
 
     <h2>② 加速設定</h2>
+    <div class="accel-note control-note">
+      ジンマンは上げたタイミングで建造加速に自動で入っているので、ここでは特に気にしなくて大丈夫です。<br>
+      建造加速確認方法：左上の自分の戦力 → 一番下までスクロール → 下から三つ目の「建造速度」で確認できます。<br>
+    </div>
     <div class="controls">
       <div class="control-group">
         <label>建造加速（％）</label>
         <input id="baseAccel" type="number" value="0" min="0" step="1" />
-        <div class="control-note">
-          ジンマンは上げたタイミングで建造加速に自動で入っているので、
-          ここでは特に気にしなくて大丈夫です。
-        </div>
       </div>
       <div class="control-group">
         <label>領主指令</label>
@@ -309,6 +309,32 @@
           <option value="3">Lv3（+9％）</option>
           <option value="4">Lv4（+12％）</option>
           <option value="5">Lv5（+15％）</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>執政官スキル</label>
+        <div class="radio-row">
+          <label><input type="radio" name="governor" value="off" checked> なし</label>
+          <label><input type="radio" name="governor" value="on"> あり（+10％）</label>
+        </div>
+      </div>
+      <div class="control-group">
+        <label>副執政官スキル</label>
+        <select id="subGov" class="wide">
+          <option value="0">なし</option>
+          <option value="10">あり（通常時 +10％）</option>
+          <option value="15">あり（至高時 +15％）</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>アグネススキル Lv</label>
+        <select id="agnesLevel" class="wide">
+          <option value="0">Lv0（なし）</option>
+          <option value="1">Lv1（1段階あたり2時間）</option>
+          <option value="2">Lv2（1段階あたり3時間）</option>
+          <option value="3">Lv3（1段階あたり4時間）</option>
+          <option value="4">Lv4（1段階あたり6時間）</option>
+          <option value="5">Lv5（1段階あたり8時間）</option>
         </select>
       </div>
     </div>
@@ -336,7 +362,7 @@
         <div class="result-value" id="boostedTime">-</div>
       </div>
       <div class="result-card">
-        <div class="result-label">合計加速率</div>
+        <div class="result-label">合計加速率（％加速分）</div>
         <div class="result-value" id="accelInfo">-</div>
       </div>
     </div>
@@ -349,7 +375,7 @@
           <th>精錬火晶</th>
           <th>火晶</th>
           <th>基礎時間</th>
-          <th>加速後時間</th>
+          <th>加速後時間（％＋アグネス）</th>
         </tr>
       </thead>
       <tbody id="detailBody">
@@ -358,9 +384,9 @@
     </table>
 
     <div class="note">
-      ※ 時間は、各段階ごとの「基礎建造時間」を合計し、<br />
-      (100 ＋ 建造加速 ＋ 領主指令 ＋ ペットスキル)％ で割って短縮時間を計算しています。<br />
-      ※ アグネスは割合加速ではなく固定時間加速なので、ここでは反映されません。各自で時間を差し引いてください。
+      ※ 時間は、各段階ごとの「基礎建造時間」を合計し、<br>
+      (100 ＋ 建造加速 ＋ 領主指令 ＋ ペットスキル ＋ 執政官 ＋ 副執政官)％ で割合加速したあと、<br>
+      アグネススキルLvに応じて「1段階あたりの固定短縮時間 × 上げた段階数」を段階ごとに減算して計算しています。<br>
     </div>
   </div>
 </div>
@@ -484,7 +510,7 @@ function idxFromFcStage(fc, stage) {
   return fc * STAGES_PER_FC + stage;
 }
 
-function toSeconds(row) {
+function rowToSeconds(row) {
   return (((row.d * 24 + row.h) * 60 + row.m) * 60 + row.s);
 }
 
@@ -515,36 +541,66 @@ function getPetBonus(level) {
   }
 }
 
-function calcBuilding(buildingName, fromFc, fromStage, toFc, toStage) {
+function getAgnesBonusHours(level) {
+  switch (level) {
+    case 1: return 2;
+    case 2: return 3;
+    case 3: return 4;
+    case 4: return 6;
+    case 5: return 8;
+    default: return 0;
+  }
+}
+
+// 建物ごとの集計（％加速＋アグネス込み）
+function calcBuilding(buildingName, fromFc, fromStage, toFc, toStage, totalAccelPercent, agnesLevel) {
   const dataKey = buildingName.includes("兵舎") ? "兵舎" : buildingName;
   const data = BASE_DATA[dataKey];
-  if (!data) return { refine: 0, fire: 0, baseSec: 0 };
+  if (!data) return { refine: 0, fire: 0, baseSec: 0, finalSec: 0 };
 
   const startIdx = idxFromFcStage(fromFc, fromStage);
   const endIdx = idxFromFcStage(toFc, toStage);
 
   if (endIdx <= startIdx) {
-    return { refine: 0, fire: 0, baseSec: 0 };
+    return { refine: 0, fire: 0, baseSec: 0, finalSec: 0 };
   }
+
+  const maxIdx = Math.min(endIdx, data.length);
+  const agnesHours = getAgnesBonusHours(agnesLevel);
+  const agnesCutPerStepSec = agnesHours * 3600;
 
   let refine = 0;
   let fire = 0;
   let baseSec = 0;
+  let finalSec = 0;
 
-  const maxIdx = Math.min(endIdx, data.length);
   for (let i = startIdx; i < maxIdx; i++) {
     const row = data[i];
+    const stepBase = rowToSeconds(row);
+
     refine += row.refine;
     fire += row.fire;
-    baseSec += toSeconds(row);
+    baseSec += stepBase;
+
+    // 割合加速後
+    let stepAfterPercent = totalAccelPercent > 0
+      ? Math.floor(stepBase * 100 / (100 + totalAccelPercent))
+      : stepBase;
+
+    // アグネス固定短縮（1段階ごと）
+    if (agnesCutPerStepSec > 0) {
+      stepAfterPercent = Math.max(0, stepAfterPercent - agnesCutPerStepSec);
+    }
+
+    finalSec += stepAfterPercent;
   }
 
-  return { refine, fire, baseSec };
+  return { refine, fire, baseSec, finalSec };
 }
 
 (function initSelectors() {
   const fcOptions = [];
-  for (let fc = 0; fc <= 7; fc++) {
+  for (let fc = 0; fc <= 8; fc++) {
     fcOptions.push(`<option value="${fc}">${fc}</option>`);
   }
   const stageOptions = [];
@@ -569,14 +625,19 @@ document.getElementById("calcBtn").addEventListener("click", () => {
   let totalRefine = 0;
   let totalFire = 0;
   let totalBaseSec = 0;
+  let totalFinalSec = 0;
 
   const baseAccel = Number(document.getElementById("baseAccel").value) || 0;
   const lordRadio = document.querySelector("input[name='lord']:checked");
   const lordBonus = lordRadio && lordRadio.value === "on" ? 20 : 0;
   const petLevel = Number(document.getElementById("petLevel").value) || 0;
   const petBonus = getPetBonus(petLevel);
+  const govRadio = document.querySelector("input[name='governor']:checked");
+  const govBonus = govRadio && govRadio.value === "on" ? 10 : 0;
+  const subGovBonus = Number(document.getElementById("subGov").value) || 0;
+  const agnesLevel = Number(document.getElementById("agnesLevel").value) || 0;
 
-  const totalAccelPercent = baseAccel + lordBonus + petBonus;
+  const totalAccelPercent = baseAccel + lordBonus + petBonus + govBonus + subGovBonus;
 
   const rows = document.querySelectorAll("#buildingRows tr");
   const detailRows = [];
@@ -588,16 +649,14 @@ document.getElementById("calcBtn").addEventListener("click", () => {
     const toFc = Number(tr.querySelector(".to-fc").value);
     const toStage = Number(tr.querySelector(".to-stage").value);
 
-    const { refine, fire, baseSec } = calcBuilding(name, fromFc, fromStage, toFc, toStage);
+    const { refine, fire, baseSec, finalSec } =
+      calcBuilding(name, fromFc, fromStage, toFc, toStage, totalAccelPercent, agnesLevel);
 
     if (baseSec > 0 || refine > 0 || fire > 0) {
       totalRefine += refine;
       totalFire += fire;
       totalBaseSec += baseSec;
-
-      const boostedSec = totalAccelPercent > 0
-        ? Math.floor(baseSec * 100 / (100 + totalAccelPercent))
-        : baseSec;
+      totalFinalSec += finalSec;
 
       detailRows.push(`
         <tr>
@@ -605,7 +664,7 @@ document.getElementById("calcBtn").addEventListener("click", () => {
           <td>${refine}</td>
           <td>${fire}</td>
           <td>${secondsToText(baseSec)}</td>
-          <td>${secondsToText(boostedSec)}</td>
+          <td>${secondsToText(finalSec)}</td>
         </tr>
       `);
     }
@@ -617,16 +676,12 @@ document.getElementById("calcBtn").addEventListener("click", () => {
     tbody.innerHTML = detailRows.join("");
   }
 
-  const totalBoostedSec = totalAccelPercent > 0
-    ? Math.floor(totalBaseSec * 100 / (100 + totalAccelPercent))
-    : totalBaseSec;
-
   document.getElementById("totalRefine").textContent = totalRefine.toLocaleString();
   document.getElementById("totalFire").textContent = totalFire.toLocaleString();
   document.getElementById("baseTime").textContent = secondsToText(totalBaseSec);
-  document.getElementById("boostedTime").textContent = secondsToText(totalBoostedSec);
+  document.getElementById("boostedTime").textContent = secondsToText(totalFinalSec);
   document.getElementById("accelInfo").textContent =
-    `${totalAccelPercent}%（建造${baseAccel}% ＋ 領主${lordBonus}% ＋ ペット${petBonus}%）`;
+    `${totalAccelPercent}%（建造${baseAccel}% ＋ 領主${lordBonus}% ＋ ペット${petBonus}% ＋ 執政官${govBonus}% ＋ 副執政官${subGovBonus}%）`;
 });
 </script>
 </body>

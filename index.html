@@ -154,91 +154,6 @@
     table { font-size: 12px; }
     input[type="number"], select { width: 72px; font-size: 12px; }
   }
-  /* ======== スマホ専用レイアウト ======== */
-@media (max-width: 640px) {
-
-  /* 全体カードの余白を調整して横スクロール防止 */
-  .card {
-    padding: 14px;
-    width: 100%;
-    overflow-x: hidden;
-  }
-
-  /* タイトル下の説明文 */
-  .subtitle {
-    font-size: 12px;
-    line-height: 1.5;
-  }
-
-  /* 建物のテーブルを 1 カラム化 */
-  table thead {
-    display: none; /* 見出しを非表示にして縦リストに */
-  }
-
-  #buildingRows tr {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-
-  #buildingRows td {
-    text-align: left;
-    font-size: 13px;
-    padding: 4px 0;
-  }
-
-  /* FC-段階の選択肢を横詰め */
-  #buildingRows select {
-    width: 74px;
-  }
-
-  /* 加速設定 全体を1カラムに */
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    padding: 12px;
-  }
-
-  .control-group {
-    width: 100%;
-  }
-
-  /* 加速設定の注釈を幅いっぱいに */
-  .control-note {
-    max-width: 100%;
-    font-size: 11px;
-    line-height: 1.5;
-  }
-
-  /* 🔥計算ボタンを画面中央へ */
-  .btn-row {
-    justify-content: center;
-    margin-top: 20px;
-  }
-
-  button {
-    width: 80%;
-    max-width: 260px;
-    font-size: 15px;
-    padding: 12px 0;
-  }
-
-  /* 結果カードを1列に */
-  .results {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  /* 内訳テーブルも縦方向に読みやすく */
-  .detail-table th,
-  .detail-table td {
-    font-size: 11px;
-    padding: 6px 4px;
-  }
-}
 </style>
 </head>
 <body>
@@ -771,4 +686,3 @@ document.getElementById("calcBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
-

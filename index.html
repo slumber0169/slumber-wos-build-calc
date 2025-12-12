@@ -412,6 +412,10 @@ function buildDaikou() {
   push(6,4,4,30,120,18,0,0,0);
   push(7,0,3,20,240,20,0,0,0);
   push(7,4,4,40,120,20,0,0,0);
+  push(8,0,3,30,280,13,0,0,0);
+  push(8,4,4,60,140,13,0,0,0);
+  push(9,0,3,70,350,20,0,0,0);
+  push(9,4,4,140,175,20,0,0,0);
   return rows;
 }
 
@@ -433,6 +437,10 @@ function buildTaishikan() {
   push(6,4,4,7,30,11,21,7,0);
   push(7,0,3,5,60,13,4,48,0);
   push(7,4,4,11,30,13,4,48,0);
+  push(8,0,3,7,70,8,13,55,0);
+  push(8,4,4,15,35,8,13,55,0);
+  push(9,0,3,17,87,13,4,48,0);
+  push(9,4,4,35,43,13,4,48,0);
   return rows;
 }
 
@@ -454,6 +462,10 @@ function buildShireibu() {
   push(6,4,4,6,24,2,1,30,0);
   push(7,0,3,4,48,2,9,36,0);
   push(7,4,4,8,24,2,9,36,0);
+  push(8,0,3,6,56,1,13,26,0);
+  push(8,4,4,12,28,1,13,26,0);
+  push(9,0,3,14,70,2,9,36,0);
+  push(9,4,4,28,35,2,9,36,0);
   return rows;
 }
 
@@ -475,6 +487,10 @@ function buildHeisha() {
   push(6,4,4,13,54,2,16,48,0);
   push(7,0,3,9,108,3,0,0,0);
   push(7,4,4,18,54,3,0,0,0);
+  push(8,0,3,13,126,1,22,48,0);
+  push(8,4,4,27,63,1,22,48,0);
+  push(9,0,3,31,157,3,0,0,0);
+  push(9,4,4,63,78,3,0,0,0);
   return rows;
 }
 
@@ -495,6 +511,10 @@ function buildGakuen() {
   push(6,0,3,6,108,3,14,24,0);
   push(6,4,4,13,54,3,14,24,0);
   push(7,0,4,9,108,4,0,0,0);
+  push(8,0,3,13,126,2,14,24,0);
+  push(8,4,4,27,63,2,14,24,0);
+  push(9,0,3,31,157,4,0,0,0);
+  push(9,4,4,63,78,4,0,0,0);
   return rows;
 }
 
@@ -600,7 +620,7 @@ function calcBuilding(buildingName, fromFc, fromStage, toFc, toStage, totalAccel
 
 (function initSelectors() {
   const fcOptions = [];
-  for (let fc = 0; fc <= 8; fc++) {
+  for (let fc = 0; fc <= 10; fc++) {
     fcOptions.push(`<option value="${fc}">${fc}</option>`);
   }
   const stageOptions = [];
@@ -686,3 +706,4 @@ document.getElementById("calcBtn").addEventListener("click", () => {
 </script>
 </body>
 </html>
+

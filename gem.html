@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宝石計算シミュレーター</title>
+
+<style>
+
+body{
+font-family:"Segoe UI",sans-serif;
+background:#111927;
+color:#e8f4ff;
+margin:0;
+}
+
+h1{
+text-align:center;
+padding:20px;
+background:#1b2b40;
+margin:0 0 10px 0;
+color:#c9e6ff;
+border-bottom:1px solid #3a516b;
+}
+
+.container{
+width:95%;
+max-width:1000px;
+margin:auto;
+}
+
+.card{
+background:#1a2332;
+margin:12px 0;
+padding:18px;
+border-radius:10px;
+border:1px solid #32465f;
+}
+
+.spearTitle{color:#6fd3ff;}
+.shieldTitle{color:#8dff8d;}
+.bowTitle{color:#ffb366;}
+
+select{
+background:#0e1724;
+color:#d6edff;
+border:1px solid #3d5977;
+padding:6px;
+border-radius:6px;
+width:70px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+border:1px solid #3b4f66;
+padding:6px;
+text-align:center;
+}
+
+th{
+background:#23344a;
+}
+
+button{
+width:100%;
+background:#3fa9ff;
+color:black;
+font-size:18px;
+padding:12px;
+border:none;
+border-radius:8px;
+margin:15px 0;
+cursor:pointer;
+}
+
+button:hover{
+background:#6ac2ff;
+}
+
+.result{
+font-size:18px;
+line-height:1.6;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>宝石計算シミュレーター</h1>
+
+<div class="container">
+
+<!-- 槍 -->
+<div class="card">
+
+<h2 class="spearTitle">槍宝石</h2>
+
+現在
+<select id="spearCurrent"></select>
+→
+目標
+<select id="spearTarget"></select>
+
+<button onclick="setSpear()">槍6個一括設定</button>
+
+<table>
+<tr><th>宝石</th><th>現在</th><th>→</th><th>目標</th></tr>
+<tbody id="spearTable"></tbody>
+</table>
+
+</div>
+
+<!-- 盾 -->
+<div class="card">
+
+<h2 class="shieldTitle">盾宝石</h2>
+
+現在
+<select id="shieldCurrent"></select>
+→
+目標
+<select id="shieldTarget"></select>
+
+<button onclick="setShield()">盾6個一括設定</button>
+
+<table>
+<tr><th>宝石</th><th>現在</th><th>→</th><th>目標</th></tr>
+<tbody id="shieldTable"></tbody>
+</table>
+
+</div>
+
+<!-- 弓 -->
+<div class="card">
+
+<h2 class="bowTitle">弓宝石</h2>
+
+現在
+<select id="bowCurrent"></select>
+→
+目標
+<select id="bowTarget"></select>
+
+<button onclick="setBow()">弓6個一括設定</button>
+
+<table>
+<tr><th>宝石</th><th>現在</th><th>→</th><th>目標</th></tr>
+<tbody id="bowTable"></tbody>
+</table>
+
+</div>
+
+<div class="card">
+
+<button onclick="calcGem()">素材計算</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const gemData=[
+{},
+{handbook:5, blueprint:5, tome:0},
+{handbook:40, blueprint:15, tome:0},
+{handbook:60, blueprint:40, tome:0},
+{handbook:80, blueprint:100, tome:0},
+{handbook:100, blueprint:200, tome:0},
+{handbook:120, blueprint:300, tome:0},
+{handbook:140, blueprint:400, tome:0},
+{handbook:200, blueprint:400, tome:0},
+{handbook:300, blueprint:400, tome:0},
+{handbook:420, blueprint:420, tome:0},
+{handbook:560, blueprint:420, tome:0},
+{handbook:580, blueprint:450, tome:15},
+{handbook:580, blueprint:450, tome:30},
+{handbook:600, blueprint:500, tome:45},
+{handbook:600, blueprint:500, tome:70},
+{handbook:650, blueprint:550, tome:100}
+];
+
+function createOptions(id,min,max){
+
+let select=document.getElementById(id);
+
+for(let i=min;i<=max;i++){
+
+let option=document.createElement("option");
+option.value=i;
+option.text=i;
+
+select.appendChild(option);
+
+}
+
+}
+
+function createRows(start,id){
+
+let html="";
+
+for(let i=0;i<6;i++){
+
+let num=start+i;
+
+html+=`
+<tr>
+<td>${num}</td>
+<td><select id="c${num}"></select></td>
+<td>→</td>
+<td><select id="t${num}"></select></td>
+</tr>
+`;
+
+}
+
+document.getElementById(id).innerHTML=html;
+
+}
+
+createRows(7,"spearTable");
+createRows(1,"shieldTable");
+createRows(13,"bowTable");
+
+for(let i=1;i<=18;i++){
+
+createOptions("c"+i,0,16);
+createOptions("t"+i,1,16);
+
+}
+
+createOptions("spearCurrent",0,16);
+createOptions("spearTarget",1,16);
+
+createOptions("shieldCurrent",0,16);
+createOptions("shieldTarget",1,16);
+
+createOptions("bowCurrent",0,16);
+createOptions("bowTarget",1,16);
+
+
+function setSpear(){
+
+let c=document.getElementById("spearCurrent").value;
+let t=document.getElementById("spearTarget").value;
+
+for(let i=7;i<=12;i++){
+
+document.getElementById("c"+i).value=c;
+document.getElementById("t"+i).value=t;
+
+}
+
+}
+
+function setShield(){
+
+let c=document.getElementById("shieldCurrent").value;
+let t=document.getElementById("shieldTarget").value;
+
+for(let i=1;i<=6;i++){
+
+document.getElementById("c"+i).value=c;
+document.getElementById("t"+i).value=t;
+
+}
+
+}
+
+function setBow(){
+
+let c=document.getElementById("bowCurrent").value;
+let t=document.getElementById("bowTarget").value;
+
+for(let i=13;i<=18;i++){
+
+document.getElementById("c"+i).value=c;
+document.getElementById("t"+i).value=t;
+
+}
+
+}
+
+function calcGem(){
+
+let handbook=0;
+let blueprint=0;
+let tome=0;
+
+for(let g=1;g<=18;g++){
+
+let current=Number(document.getElementById("c"+g).value);
+let target=Number(document.getElementById("t"+g).value);
+
+for(let i=current+1;i<=target;i++){
+
+handbook+=gemData[i].handbook;
+blueprint+=gemData[i].blueprint;
+tome+=gemData[i].tome;
+
+}
+
+}
+
+document.getElementById("result").innerHTML=
+
+`ハンドブック : ${handbook}<br>
+図面 : ${blueprint}<br>
+秘典 : ${tome}`;
+
+}
+
+</script>
+
+</body>
+</html>

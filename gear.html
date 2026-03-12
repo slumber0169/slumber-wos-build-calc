@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -39,6 +40,7 @@ border:1px solid #32465f;
 table{
 width:100%;
 border-collapse:collapse;
+table-layout:fixed;
 }
 
 th,td{
@@ -55,9 +57,14 @@ select{
 background:#0e1724;
 color:#d6edff;
 border:1px solid #3d5977;
-padding:6px;
+padding:5px;
 border-radius:6px;
 }
+
+/* 列幅 */
+.rarity{width:110px;}
+.tier{width:45px;}
+.star{width:45px;}
 
 button{
 width:100%;
@@ -86,7 +93,7 @@ line-height:1.7;
 
 .homeButton{
 display:inline-block;
-margin:20px 0;
+margin:20px;
 padding:10px 18px;
 background:#23344a;
 border:1px solid #3a516b;
@@ -116,7 +123,6 @@ font-size:12px;
 select{
 font-size:12px;
 padding:2px;
-width:55px;
 }
 
 button{
@@ -129,14 +135,15 @@ font-size:15px;
 }
 
 }
-  
+
 </style>
+
 </head>
 
 <body>
 
 <h1>領主装備計算シミュレーター</h1>
-  <a href="index.html" class="homeButton">← トップへ戻る</a>
+<a href="index.html" class="homeButton">← トップへ戻る</a>
 
 <div class="container">
 
@@ -254,18 +261,17 @@ html+=`
 <tr class="${n[1]}">
 <td>${n[0]}</td>
 
-<td><select id="cr${i}"></select></td>
-<td><select id="ct${i}"></select></td>
-<td><select id="cs${i}"></select></td>
+<td><select id="cr${i}" class="rarity"></select></td>
+<td><select id="ct${i}" class="tier"></select></td>
+<td><select id="cs${i}" class="star"></select></td>
 
 <td>→</td>
 
-<td><select id="tr${i}"></select></td>
-<td><select id="tt${i}"></select></td>
-<td><select id="ts${i}"></select></td>
+<td><select id="tr${i}" class="rarity"></select></td>
+<td><select id="tt${i}" class="tier"></select></td>
+<td><select id="ts${i}" class="star"></select></td>
 </tr>
 `
-
 })
 
 document.getElementById("gearTable").innerHTML=html
@@ -275,36 +281,30 @@ function fill(){
 document.querySelectorAll("select").forEach(s=>{
 
 if(s.id.includes("r")){
-
 rarity.forEach(r=>{
 let o=document.createElement("option")
 o.value=r
 o.text=r
 s.appendChild(o)
 })
-
 }
 
 if(s.id.includes("t")){
-
 for(let i=0;i<=3;i++){
 let o=document.createElement("option")
 o.value=i
 o.text=i
 s.appendChild(o)
 }
-
 }
 
 if(s.id.includes("s")){
-
 for(let i=0;i<=3;i++){
 let o=document.createElement("option")
 o.value=i
 o.text=i
 s.appendChild(o)
 }
-
 }
 
 })
@@ -374,6 +374,4 @@ document.getElementById("result").innerHTML=`
 </script>
 
 </body>
-
 </html>
-

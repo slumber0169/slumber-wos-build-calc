@@ -181,7 +181,26 @@ background:#2d4661;
       必要な精錬火晶・火晶と、加速後の建造時間合計を計算します。<br>
     </div>
 
-    <h2>① 建物ごとのレベル</h2>
+    
+<h2>① 建物ごとのレベル</h2>
+
+<div class="controls">
+  <div class="control-group">
+    <label>現在FC</label>
+    <select id="bulkFromFc"></select>
+  </div>
+
+  <div class="control-group">
+    <label>目標FC</label>
+    <select id="bulkToFc"></select>
+  </div>
+
+  <div class="control-group">
+    <label>&nbsp;</label>
+    <button type="button" id="bulkFcBtn">FC一括設定</button>
+  </div>
+</div>
+
     <table>
       <thead>
         <tr>
@@ -636,9 +655,15 @@ function calcBuilding(buildingName, fromFc, fromStage, toFc, toStage, totalAccel
 
 (function initSelectors() {
   const fcOptions = [];
+  let bulkOptions = "";
   for (let fc = 0; fc <= 10; fc++) {
-    fcOptions.push(`<option value="${fc}">${fc}</option>`);
+    const option = `<option value="${fc}">${fc}</option>`;
+    fcOptions.push(option);
+    bulkOptions += option;
   }
+
+  document.getElementById("bulkFromFc").innerHTML = bulkOptions;
+  document.getElementById("bulkToFc").innerHTML = bulkOptions;
   const stageOptions = [];
   for (let st = 0; st <= 4; st++) {
     stageOptions.push(`<option value="${st}">${st}</option>`);
@@ -653,6 +678,20 @@ function calcBuilding(buildingName, fromFc, fromStage, toFc, toStage, totalAccel
     });
   });
 })();
+
+
+document.getElementById("bulkFcBtn").addEventListener("click", () => {
+  const fromFc = document.getElementById("bulkFromFc").value;
+  const toFc = document.getElementById("bulkToFc").value;
+
+  document.querySelectorAll(".from-fc").forEach(sel => {
+    sel.value = fromFc;
+  });
+
+  document.querySelectorAll(".to-fc").forEach(sel => {
+    sel.value = toFc;
+  });
+});
 
 document.getElementById("calcBtn").addEventListener("click", () => {
   const tbody = document.getElementById("detailBody");
